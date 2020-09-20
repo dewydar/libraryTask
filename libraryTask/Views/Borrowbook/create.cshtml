@@ -1,0 +1,91 @@
+﻿@model libraryTask.Models.LibraryDB.BookTransaction
+
+<div class="modal fade" id="CreateBorrowModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="CreateBorrowModaltitle"></h4>
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+            </div>
+            <div class="modal-body">
+                <form id="CreateBorrowform">
+                    <div class="form-horizontal">
+
+                        <div class="form-group">
+                            @Html.Label("Customer Name", htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-md-10">
+                                @Html.DropDownListFor(m => m.CustomerID, ViewBag.Customers as SelectList, "Select Borrower", htmlAttributes: new { @class = "form-control  validateAlways", style = "visibility: hidden;position: absolute;display:inline !important" })
+                                @Html.ValidationMessageFor(model => model.CustomerID, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+
+                            @Html.Label("Book Name", htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" placeholder="Book Name" id="AutoCompleteauthor" />
+                                @Html.HiddenFor(m => m.BookID, new { @class = "form-control", @placeholder = "" })
+
+                                @Html.ValidationMessageFor(model => model.BookID, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Borrowing Date", htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-md-10">
+                                @Html.TextBoxFor(m => m.startDate, new { @class = "form-control", type = "date" })
+                                @Html.ValidationMessageFor(model => model.startDate, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a href="#" class="btn btn-primary" id="CreateBorrowSavebtn">Save</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="CreateRetrieveModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="CreateRetrieveModaltitle"></h4>
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+            </div>
+            <div class="modal-body">
+                <form id="CreateRetrieveFom">
+                    <div class="form-horizontal">
+
+                        <div class="form-group">
+                            @Html.Label("Customer Name", htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-md-10">
+                                @Html.DropDownListFor(m => m.CustomerID, ViewBag.Customers as SelectList, "Select Borrower", htmlAttributes: new { @class = "form-control  validateAlways", style = "visibility: hidden;position: absolute;display:inline !important" })
+                                @Html.ValidationMessageFor(model => model.CustomerID, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Retrieve Date", htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-md-10">
+                                @Html.TextBoxFor(m => m.EndDate, new { @class = "form-control", type = "date" })
+                                @Html.ValidationMessageFor(model => model.EndDate, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a href="#" class="btn btn-primary" id="CreateRetrieveSavebtn">Save</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

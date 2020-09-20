@@ -1,0 +1,429 @@
+﻿@model libraryTask.Models.LibraryDB.Book
+@{
+    ViewBag.Title = "Index";
+}
+@*Creat apopup Modal For Add And Edit*@
+<div class="modal fade" id="MyModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="Modaltitle"></h4>
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+            </div>
+            <div class="modal-body">
+                <form id="form">
+                    <div class="form-horizontal">
+                        @Html.HiddenFor(m => m.ID)
+
+                        <div class="form-group">
+                            @Html.Label("Name", htmlAttributes: new { @class = "control-label col-md-1" })
+                            <div class="col-md-11">
+                                @Html.TextBoxFor(m => m.BookName, new { @class = "form-control", @placeholder = "Book Name" })
+                                @Html.ValidationMessageFor(model => model.BookName, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+
+                            @Html.Label("Author", htmlAttributes: new { @class = "control-label col-md-1" })
+                            <div class="col-md-11">
+                                @Html.TextBoxFor(m => m.AuthorName, new { @class = "form-control", @placeholder = "Author Name" })
+                                @Html.ValidationMessageFor(model => model.AuthorName, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("NumberOfCopies", htmlAttributes: new { @class = "control-label col-md-1" })
+                            <div class="col-md-11">
+                                @Html.TextBoxFor(m => m.NumberOfCopies, new { @class = "form-control", @placeholder = "Number Of Copies" })
+                                @Html.ValidationMessageFor(model => model.NumberOfCopies, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a href="#" class="btn btn-primary" id="Savebtn">Save</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="LoginModel">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="Modaltitle"></h4>
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("~/Views/Account/Login.cshtml")
+            </div>
+            @*<div class="modal-footer">
+                <div class="text-right">
+                    <a href="#" class="btn btn-primary" id="Savebtn">Save</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+
+                </div>
+            </div>*@
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Views/Borrowbook/create.cshtml")
+<div class="text-center">
+    <h3 class="center info">All Books</h3>
+</div>
+
+<div class="container" id="test" style="margin-top:3%">
+    <button class="btn btn-primary mb-3" onclick="AddBook(0)">Add New Book </button>
+    <table id="Table" class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Book Name</th>
+                <th>Author Name</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+
+    </table>
+</div>
+
+@section scripts{
+    
+<script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
+    <script>
+        function Save() {
+            if ($("#form").valid()) {
+
+                var data = $("#form").serialize();
+                $.ajax({
+                    type: "post",
+                    url: "/Book/Save",
+                    data: data,
+                    success: function (response) {
+                        if (response.msg == false) {
+                            toastr.error('Something Wrong Happend Plese Try Later', { timeOut: 3000 });
+                        }
+
+                        else if (data.split("&")[0] == "ID=0") {
+                            $("#Table").DataTable().ajax.reload();
+                            toastr.success('Book Added successfully', { timeOut: 4000 });
+                            $("#MyModal").modal("hide")
+
+                        }
+                        else {
+                            $("#Table").DataTable().ajax.reload();
+                            toastr.success('Book Updated successfully', 'Notification', { timeOut: 4000 });
+                            $("#MyModal").modal("hide")
+                        }
+                    },
+                    fail: function () {
+                        toastr.error('Something Wrong Happend Plese Try Later', { timeOut: 3000 });
+                    },
+                    error: function () {
+                        toastr.error('Something Wrong Happend Plese Try Later', { timeOut: 3000 });
+                    }
+                });
+            }
+        }
+        function SaveBorrow() {
+            if ($("#BookID").val() == "") {
+                $('span[data-valmsg-for="BookID"]').text("please select Book Name");
+                return false
+            }
+            else {
+                $('span[data-valmsg-for="BookID"]').text("");
+
+            }
+            if ($("#CreateBorrowform").valid()) {
+
+                var data = $("#CreateBorrowform").serialize();
+                $.ajax({
+                    type: "post",
+                    url: "/Borrowbook/Save",
+                    data: data,
+                    success: function (response) {
+                        if (response.status == false) {
+                            toastr.error(response.msg, { timeOut: 3000 });
+                        }
+
+                        else if (data.split("&")[0] == "ID=0") {
+                            
+                            toastr.success(response.msg, { timeOut: 4000 });
+                            $("#CreateBorrowModal").modal("hide")
+
+                        }
+                        else {
+                            toastr.success('Book Updated successfully', 'Notification', { timeOut: 4000 });
+                        }
+                    },
+                    fail: function () {
+                        toastr.error('Something Wrong Happend Plese Try Later', { timeOut: 3000 });
+                    },
+                    error: function () {
+                        toastr.error('Something Wrong Happend Plese Try Later', { timeOut: 3000 });
+                    }
+                });
+            }
+        }
+
+        function SaveRetrieve() {
+
+            //if ($("#CreateRetrieveFom").valid()) {
+            if ($("#CreateRetrieveFom #CustomerID").val() == "") {
+                $('#CreateRetrieveFom span[data-valmsg-for="CustomerID"]').text("please select Customer  Name");
+                return false
+            }
+                if ($("#CreateRetrieveFom #EndDate").val() == "") {
+                $('#CreateRetrieveFom span[data-valmsg-for="EndDate"]').text("please select Date");
+                return false
+            }
+                var data = $("#CreateRetrieveFom").serialize();
+                $.ajax({
+                    type: "post",
+                    url: "/Borrowbook/Retrieve",
+                    data: data,
+                    success: function (response) {
+                        if (response.status == false) {
+                            toastr.error(response.msg, { timeOut: 3000 });
+                        }
+
+                        else if (data.split("&")[0] == "ID=0") {
+                            
+                            toastr.success(response.msg, { timeOut: 4000 });
+                            $("#CreateBorrowModal").modal("hide")
+
+                        }
+                        else {
+                            toastr.success('Book Retrieve successfully', 'Notification', { timeOut: 4000 });
+                        }
+                    },
+                    fail: function () {
+                        toastr.error('Something Wrong Happend Plese Try Later', { timeOut: 3000 });
+                    },
+                    error: function () {
+                        toastr.error('Something Wrong Happend Plese Try Later', { timeOut: 3000 });
+                    }
+                });
+            //}
+        }
+        
+        function AddBook() {
+            $("#NumberOfCopies").parent().parent().removeClass("d-none");
+            $("span[class*='error']").text("")
+
+            $("#form")[0].reset();
+            $("#Modaltitle").html("Add New Book");
+            $("#IncomeID").val("0");
+            $("#MyModal").modal()
+            $("#BookName").focus();
+
+        }
+
+
+        function Edit(ID) {
+            $("span[class*='error']").text("")
+
+            var url = "/book/Get?id=" + ID;
+            $("#Modaltitle").html("Edit Book");
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (rs) {
+                    $("#MyModal").modal();
+                    $("#ID").val(rs.data.ID);
+                    $("#BookName").val(rs.data.BookName);
+                    $("#AuthorName").val(rs.data.AuthorName);
+                    $("#NumberOfCopies").val(rs.data.NumberOfCopies);
+                    $("#NumberOfCopies").parent().parent().addClass("d-none")
+
+
+                }
+            })
+
+        }
+                   function AddCustomer () {
+                
+                var CustoomerName = $("#CustomerName").val()
+                var MobileNumber = $("#CusomerMobile").val()
+                if (CustoomerName == "") {
+                    $("#CustomerName").css("border", "1px solid red");
+                    return false
+                }
+                else if (isNaN(MobileNumber) || MobileNumber == "") {
+                    $("#CustomerName").css("border", "");
+
+                    $("#CusomerMobile").css("border", "1px solid red");
+                    return false;
+                }
+                else {
+                    var customSerilize = "CustomerName=" + CustoomerName + "&Mobile" + MobileNumber;
+                    var ul = $("#CustomerID_chosen .chosen-drop .chosen-results");
+                    $.ajax({
+                        url: "@Url.Action("RemotCreate","Customer")",
+                        type: "Post",
+                        data: customSerilize,
+                        success: function (res) {
+                            if (res.msg == true) {
+                                $("#CustomerID").append('<option value="' + res.data.ID + '">' + CustoomerName + '-' + MobileNumber + '</option>');
+                    $("#CustomerID").val(res.data);
+
+                    $("#CustomerID").trigger('chosen:updated');
+                       $("#CustomerID").trigger('chosen:close');
+
+                                ul.append('<li class="active-result result-selected">' + CustoomerName +'-'+ MobileNumber + ' </li>');
+
+                    toastr.success('تمت اضافه السريل بتاريخ اليوم', 'عمليه اضافه ناجحه', { timeOut: 3000 });
+                            }
+                            else {
+
+                            }
+
+                },
+                fail: function () {
+                    toastr.error('عمليه غير ناجحه', 'حدث خطأ اثناء الضافه برجاء المحاوله مره اخري ', { timeOut: 3000 });
+                }
+                    })
+                }
+            }
+
+        $(document).ready(function () {
+
+
+            $("#Savebtn").click(function () {
+                Save();
+            });
+            var table = $("#Table").DataTable({
+                "ajax": {
+                    'url': "/Book/Getall",
+                    'type': "GET"
+                },
+                "columns": [
+                    {
+                        "data": null, "render": function (data, type, full, meta) {
+                            return meta.row + 1;
+                        }
+                    },
+
+                    { "data": "BookName" },
+                    { "data": "AuthorName" },
+                    {
+                        "data": "ID", "render": function (data) {
+                            return "<botton class='btn btn-primary ED' style='margin-top:3px' onclick='Edit(" + data + ")'><i class='far fa-edit'></i></botton>"
+                        }
+                    },
+                    {
+                        "data": "ID", "render": function (data) {
+                            return "<botton class='btn btn-danger ED' style='margin-top:3px' onclick='DeleteIncome(" + data + ")'><i class='fas fa-trash-alt'></i></botton>"
+                        }
+                    },
+
+
+                ],
+                responsive: true
+
+            });
+
+
+
+            //CreateBorrow Scripot
+            
+            $("#CreateBorrowform #CustomerID").chosen({
+                width: '100%',
+                placeholder_text_single:"Select Customer",
+                    no_results_text: '<input type="text" placeholder="Customer Name" class="mw-100 form-control" id="CustomerName" /><input type="number" placeholder="Customer Number" class="mw-100 form-control" id="CusomerMobile" /><button type="submit" class="btn btn-primary" onclick="AddCustomer()">Add Customer</button>',
+                    search_contains: true
+                });
+            $("#CreateBorrowform #CustomerID").css("display", "");
+
+            $("#CreateRetrieveFom #CustomerID").chosen({
+                width: '100%',
+                placeholder_text_single:"Select Customer",
+                    no_results_text: 'No Custome Founded',
+                    search_contains: true
+                });
+            $("#CreateRetrieveFom #CustomerID").css("display", "");
+            $("#CreateBorrowform #AutoCompleteauthor").change(function () {
+                 $('#BookID').val("");
+            })
+            $( "#CreateBorrowform #AutoCompleteauthor" ).autocomplete({
+  source: function (request, response) {
+
+                $.ajax({
+                    url: "@Url.Action("GetBooks","Book")",
+                    type: "GET",
+                    dataType: "json",
+
+                    data: {
+
+                        SText: $("#AutoCompleteauthor").val(),
+
+                    },
+                    success: function (data) {
+                        response($.map(data,
+                            function (item) {
+                                debugger
+                                return { label: item.Name, value: item.Name, ss: item.ID };
+                            }));
+                    }
+
+                });
+            },
+            select: function (event, ui) {
+                $('#BookID').val(ui.item.ss);
+            }    });
+
+            $("#CreateBorrowSavebtn").click(function () {
+                SaveBorrow();
+            });
+            
+            $("#CreateRetrieveSavebtn").click(function () {
+                SaveRetrieve();
+            });
+
+            //login 
+
+            $("input[value='Log in']").click(function (e) {
+                e.preventDefault();
+                if ($("#LoginWindwForm").valid()) {
+                    var data = $("#LoginWindwForm").serialize();
+                    $.ajax({
+                        type: "post",
+                        url: "/Account/Login",
+                        data: data,
+                        success: function (response) {
+                            if (response.status == true) {
+
+                                toastr.success("sucessufly log in", { timeOut: 4000 });
+                                $("#LoginModel").modal("hide")
+                                location.reload();
+                            }
+                            else {
+                                toastr.error("invalid Password Or  Email", { timeOut: 3000 });
+
+                            }
+
+
+                        },
+                        fail: function () {
+                            toastr.error('Something Wrong Happend Plese Try Later', { timeOut: 3000 });
+                        },
+                        error: function () {
+                            toastr.error('Something Wrong Happend Plese Try Later', { timeOut: 3000 });
+                        }
+                    });
+                }
+                else {
+                    return false;
+                }
+            })
+        });
+    </script>
+}
